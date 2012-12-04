@@ -1,41 +1,48 @@
 (ns com.bioniccletus.metamorph.core
-  (:import [kafka.javaapi.producer ProducerData Producer]
-           [kafka.javaapi.message ByteBufferMessageSet]
-           [kafka.message Message]
-           [kafka.producer ProducerConfig]
-           [java.util Arrays List Properties]))
+  (:require
+   [rn.clorine.pool :as pool])
+  (:import
+   [kafka.javaapi.producer ProducerData Producer]
+   [kafka.javaapi.message ByteBufferMessageSet]
+   [kafka.message Message]
+   [kafka.producer ProducerConfig]
+   [java.util Arrays List Properties]))
 
 
-(def *config*
-     (atom
-      {:test
-       {:zk.connect       "127.0.0.1:2181"
-        :serializer.class "kafka.serializer.StringEncoder"}}))
+(defn register-producer [producer-name config]
+  (let [props (reduce (fn [props [k v]]
+                        (.put props (name k) v)
+                        props)
+                      (Properties.)
+                      config)]
+    (pool/register-pool
+     producer-name
+     (pool/make-factory
+      {:make-fn
+       (fn [pool-impl]
+         (Producer. (ProducerConfig. props)))
+       :destroy-fn
+       (fn [p]
+         (try
+          (.close p)
+          (catch Exception ex
+            ;; NB: log? warn?
+            )))}))))
 
-
-(def ^:dynamic *producer* nil)
-
-(defn with-producer* [id body-fn]
-  (let [config   (get @*config* id)
-        props    (reduce (fn [props [k v]]
-                           (.put props (name k) v)
-                           props)
-                         (Properties.)
-                         config)
-        config   (ProducerConfig. props)]
-    (with-open [producer (Producer. config)]
-      (binding [*producer* producer]
-        (body-fn)))))
-
-
-(defmacro with-producer [id & body]
-  `(with-producer* ~id (fn [] ~@body)))
+(defmacro with-producer [[inst-name pool-name] & body]
+  `(pool/with-instance [~inst-name ~pool-name] ~@body))
 
 (defn send-message [topic message]
   (.send *producer* (ProducerData. topic message)))
 
 (comment
-  (with-producer :test
-    (send-message "test" "foo"))
+  (def config
+       {:zk.connect       "127.0.0.1:2181"
+        :serializer.class "kafka.serializer.StringEncoder"})
+
+  (register-producer :test config)
+
+  (with-producer [the-dood :test]
+    :got-object-dood)
 
   )

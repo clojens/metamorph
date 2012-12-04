@@ -6,9 +6,12 @@ A Clojure wrapper around the Apache Kafka APIs
 
 Add the dependency to your project.clj:
 
-> [com.bioniccletus/metamorph "0.1.0"]
+    [com.bioniccletus/metamorph "0.1.0"]
 
-Send a message to a Kafka broker.
+Send a message to a Kafka broker:
+
+    (use com.bioniccletus.metamorph.core)
+    ... coming soon... 
 
 ## License
 

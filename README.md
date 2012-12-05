@@ -20,6 +20,10 @@ This assumes you have an instance of zookeeper running on localhost:2181
       {:zk.connect       "127.0.0.1:2181"
        :serializer.class "kafka.serializer.StringEncoder"})
 
+    ;; Post a message to the "test" topic with a body of "hello, kafka"
+    (with-producer [p :my-producer]
+      (send-message p "test" "hello, kafka"))
+
 ## License
 
 Copyright © 2012 

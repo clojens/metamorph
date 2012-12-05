@@ -32,8 +32,8 @@
 (defmacro with-producer [[inst-name pool-name] & body]
   `(pool/with-instance [~inst-name ~pool-name] ~@body))
 
-(defn send-message [topic message]
-  (.send *producer* (ProducerData. topic message)))
+(defn send-message [p topic message]
+  (.send p (ProducerData. topic message)))
 
 (comment
   (def config
@@ -43,6 +43,6 @@
   (register-producer :test config)
 
   (with-producer [the-dood :test]
-    :got-object-dood)
+    (send-message the-dood "test" "abc"))
 
   )

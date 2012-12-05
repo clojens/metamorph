@@ -1,4 +1,4 @@
-(defproject com.bioniccletus/metamorph "0.1.0-SNAPSHOT"
+(defproject com.bioniccletus/metamorph "0.1.0"
   :description "Clojure library for interacting with Apache Kafka"
   :url "http://github.com/jcrean/metamorph"
   :license {:name "Eclipse Public License"
